@@ -173,22 +173,19 @@ int watch_pins() {
 						if (now - down_at[i] > DEBOUNCE_INTERVAL) {
 							down_at[i] = now;
 							switch_state[i] = 1;
-							goto run_script;
+							run_script(pins[i].pin, 1);
 						}
 					} else if (switch_state[i] == 1 && valbuf[0] == '0') {
 						if (now - down_at[i] > DEBOUNCE_INTERVAL) {
 							down_at[i] = now;
 							switch_state[i] = 0;
-							goto run_script;
+							run_script(pins[i].pin, 0);
 						}
 					}
-
-					continue;
   				}
-
-run_script:
-				run_script(pins[i].pin,
-						valbuf[0] == '1' ? 1 : 0);
+				else {
+					run_script(pins[i].pin, valbuf[0] == '1' ? 1 : 0);
+				}
 			}
 		}
 	}
