@@ -169,12 +169,14 @@ int watch_pins() {
 					clock_gettime(CLOCK_MONOTONIC, &ts);
 					now = ts.tv_sec * NANOS + ts.tv_nsec;
 
-					if (now - down_at[i] > DEBOUNCE_INTERVAL) {
-						if (switch_state[i] == 0 && valbuf[0] == '1') {
+					if (switch_state[i] == 0 && valbuf[0] == '1') {
+						if (now - down_at[i] > DEBOUNCE_INTERVAL) {
 							down_at[i] = now;
 							switch_state[i] = 1;
 							goto run_script;
-						} else if (switch_state[i] == 1 && valbuf[0] == '0') {
+						}
+					} else if (switch_state[i] == 1 && valbuf[0] == '0') {
+						if (now - down_at[i] > DEBOUNCE_INTERVAL) {
 							down_at[i] = now;
 							switch_state[i] = 0;
 							goto run_script;
