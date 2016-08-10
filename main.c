@@ -45,10 +45,6 @@
 #define DEFAULT_SCRIPT_DIR "/etc/gpio-scripts"
 #endif
 
-// use for converting seconds to nanoseconds.
-#define NANOS 1000000000LL
-#define DEBOUNCE_INTERVAL 100000L
-
 char *script_dir = DEFAULT_SCRIPT_DIR;
 char *logfile = NULL;
 int default_edge = EDGE_BOTH;
@@ -123,8 +119,7 @@ int watch_pins() {
 	struct timespec ts;
 
 	unsigned char switch_state[num_pins];
-	long long now,
-	     down_at[num_pins];
+	long long now, down_at[num_pins];
 
 	valbuf[2] = '\0';
 	memset(switch_state, 0, num_pins);
@@ -162,21 +157,19 @@ int watch_pins() {
 				lseek(fdlist[i].fd, 0, SEEK_SET);
 				read(fdlist[i].fd, valbuf, 2);
 
-				// for pins use 'switch' edge mode, we only trigger
-				// an event when we receive the '1' event more than
-				// DEBOUNCE_INTERVAL nanoseconds after the '0' event.
+				// for pins use 'switch' edge mode
   				if (EDGE_SWITCH == pins[i].edge) {
 					clock_gettime(CLOCK_MONOTONIC, &ts);
-					now = ts.tv_sec * NANOS + ts.tv_nsec;
+					now = ts.tv_sec;
 
 					if (switch_state[i] == 0 && valbuf[0] == '1') {
-						if (now - down_at[i] > DEBOUNCE_INTERVAL) {
+						if (now - down_at[i] > 1) {
 							down_at[i] = now;
 							switch_state[i] = 1;
 							run_script(pins[i].pin, 1);
 						}
 					} else if (switch_state[i] == 1 && valbuf[0] == '0') {
-						if (now - down_at[i] > DEBOUNCE_INTERVAL) {
+						if (now - down_at[i] > 1) {
 							down_at[i] = now;
 							switch_state[i] = 0;
 							run_script(pins[i].pin, 0);
