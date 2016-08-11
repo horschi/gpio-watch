@@ -266,6 +266,22 @@ int main(int argc, char **argv) {
 		pins[num_pins-1] = p;
 	}
 
+	if(num_pins == 0) {
+		for(i=0;i<32;i++) {
+			char *script_path,
+			int script_path_len;
+			script_path_len = strlen(script_dir) + GPIODIRLEN + 2;
+			script_path = (char *)malloc(script_path_len);
+			snprintf(script_path, script_path_len, "%s/%d", script_dir, i);
+
+			if(is_file(script_path)) {
+				num_pins++;
+				pins = realloc(pins, sizeof(struct pin) * num_pins);
+				pins[num_pins-1] = i;
+			}
+		}
+	}
+
 	for (i=0; i<num_pins; i++) {
 		pin_export(pins[i].pin);
 		pin_set_edge(pins[i].pin, pins[i].edge);
