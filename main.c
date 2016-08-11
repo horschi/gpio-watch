@@ -68,17 +68,13 @@ void run_script (int pin, int value) {
 	pid_t pid;
 	int status;
 
-	script_path_len = strlen(script_dir)
-			+ GPIODIRLEN
-			+ 2;
+	script_path_len = strlen(script_dir) + GPIODIRLEN + 2;
 	script_path = (char *)malloc(script_path_len);
 
-	snprintf(script_path, script_path_len,
-			"%s/%d", script_dir, pin);
+	snprintf(script_path, script_path_len, "%s/%d", script_dir, pin);
 
 	if (! is_file(script_path)) {
-		LOG_WARN("pin %d: script \"%s\" does not exist",
-				pin, script_path);
+		LOG_WARN("pin %d: script \"%s\" does not exist", pin, script_path);
 		return;
 	}
 
@@ -131,8 +127,7 @@ int watch_pins() {
 	for (i=0; i<num_pins; i++) {
 		int fd;
 
-		snprintf(pin_path, pin_path_len,
-				"%s/gpio%d/value", GPIO_BASE, pins[i].pin);
+		snprintf(pin_path, pin_path_len, "%s/gpio%d/value", GPIO_BASE, pins[i].pin);
 		fd = open(pin_path, O_RDONLY);
 		read(fd, valbuf, 2);
 		fdlist[i].fd = fd;
@@ -268,7 +263,7 @@ int main(int argc, char **argv) {
 
 	if(num_pins == 0) {
 		for(i=0;i<32;i++) {
-			char *script_path,
+			char *script_path;
 			int script_path_len;
 			script_path_len = strlen(script_dir) + GPIODIRLEN + 2;
 			script_path = (char *)malloc(script_path_len);
@@ -277,7 +272,10 @@ int main(int argc, char **argv) {
 			if(is_file(script_path)) {
 				num_pins++;
 				pins = realloc(pins, sizeof(struct pin) * num_pins);
-				pins[num_pins-1] = i;
+				struct pin p;
+				p.pin = i;
+				p.edge = default_edge;
+				pins[num_pins-1] = p;
 			}
 		}
 	}
